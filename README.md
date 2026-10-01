@@ -17,4 +17,4 @@
 ## Other - learning notes
 
 - [estimation](estimation/)
-- [mental arithmetic](mental arithmetic/)
+- [mental arithmetic](./mental%20arithmetic/)
