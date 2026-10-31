@@ -115,7 +115,7 @@ Or just run `av-status` (see [Shell helpers](#shell-helpers)).
 
 ## Shell helpers
 
-Four shell commands wrap the checks above. Type `av-` and press Tab to list
+Six shell commands wrap the checks above. Type `av-` and press Tab to list
 them:
 
 | Command | What it does |
@@ -124,6 +124,8 @@ them:
 | `av-run-status` | Any scan running now (with elapsed time), when each scan type next runs, and the scheduled wake. |
 | `av-run-weekly` | Starts the weekly scan now, via launchd, even on battery (asks for your password). |
 | `av-run-frequent` | Starts the frequent scan now, via launchd. |
+| `av-list-quarantine` | Lists quarantined files: date (the file's own modified time), size, and `run-folder/name`. Leftover lock files are only counted. |
+| `av-clear-quarantine` | Lists the quarantine, asks for confirmation, then permanently deletes everything in it (asks for your password). Refuses while a scan is running. |
 
 ### Step 1 — The status script
 
@@ -270,7 +272,8 @@ def main():
     print(f"  - Frequent scan avg duration:         "
           + (f"{duration(timedelta(seconds=round(sum(times) / len(times))))} (last {len(times)} completed)"
              if times else "no completed scans"))
-    files = sum(len(names) for _, _, names in os.walk(QUARANTINE))
+    files = sum(1 for _, _, names in os.walk(QUARANTINE) for n in names
+                if not n.startswith(".clamav-quarantine-lock."))
     print(f"  - Files in quarantine:                {files}")
 
     print("\nUpdates")
@@ -317,16 +320,16 @@ Weekly scans
 Stats
   - Last weekly scan with detections:   2026-10-25 Sun 03:06:32, 2 infected file(s)
   - Last frequent scan with detections: 2026-08-22 Sat 18:43:32, 1 infected file(s)
-  - Frequent scan avg duration:         0 days, 00:23:39 (last 5 completed)
-  - Files in quarantine:                5
+  - Frequent scan avg duration:         0 days, 00:23:42 (last 5 completed)
+  - Files in quarantine:                1
 
 Updates
-  - Virus database last updated: 2026-10-31 Sat 08:54:41  (daily.cld version 28170)
-  - Engine last updated:         2026-10-09 Fri 17:29:24  (ClamAV 1.5.4_1)
+  - Virus database last updated: 2026-10-31 Sat 21:29:51  (daily.cvd version 28170)
+  - Engine last updated:         unknown  (ClamAV 1.5.4)
 
 Upcoming
   - Next weekly scan:   2026-11-01 Sun 03:00:00 (on mains power)
-  - Next frequent scan: 2026-10-31 Sat 21:21:42
+  - Next frequent scan: 2026-10-31 Sat 22:08:25
 
 Reminders
   - Start a scan now:      av-run-frequent, av-run-weekly
@@ -374,6 +377,7 @@ Paste in:
 # Setup guide: ~/src/personal/learning/clamav-docs
 
 AV_LOGDIR=/opt/homebrew/var/log/clamav
+AV_QUARANTINE=/opt/homebrew/var/quarantine
 
 # Recent weekly runs, detections, updates and what's scheduled next.
 av-status() {
@@ -407,6 +411,29 @@ av-run-status() {
   echo
   echo "== Scheduled wakes =="
   pmset -g sched | grep -iA2 repeating || echo "No repeating wake set (see 03-weekly-scan.md)"
+}
+
+# Quarantined files (date moved, size, run folder/name). Lock files left by
+# interrupted scans aren't detections, so they're only counted.
+av-list-quarantine() {
+  local files=$(find "$AV_QUARANTINE" -type f ! -name '.clamav-quarantine-lock.*' \
+    -exec stat -f '%Sm  %8z  %N' -t '%Y-%m-%d %H:%M' {} + | sed "s|$AV_QUARANTINE/||")
+  echo "${files:-No quarantined files.}"
+  local locks=$(find "$AV_QUARANTINE" -type f -name '.clamav-quarantine-lock.*' | wc -l | tr -d ' ')
+  (( locks )) && echo "(plus $locks leftover lock file(s) from interrupted scans)"
+  echo "Original locations: grep FOUND $AV_LOGDIR/*-scan.log"
+}
+
+# Permanently deletes everything in quarantine, after confirmation.
+av-clear-quarantine() {
+  if pgrep -q clamscan; then
+    echo "A scan is running and may be moving files into quarantine. Try again when it's finished."
+    return 1
+  fi
+  av-list-quarantine
+  read -q "?Permanently delete all of the above? [y/N] " || { echo; return 1; }
+  echo
+  sudo find "$AV_QUARANTINE" -mindepth 1 -delete && echo "Quarantine emptied."
 }
 ```
 

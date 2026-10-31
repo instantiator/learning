@@ -22,13 +22,18 @@ folder per scan run so you can tell when things were found:
 
 ```
 /opt/homebrew/var/quarantine/
-  20260816-172500/      <- frequent scan run
-  20260817-030000/      <- weekly scan run
+  20260817-030000/      <- weekly scan run that found something
     eicar-test.txt
 ```
 
-Both the frequent scan (chapter 02) and the weekly scan (chapter 03) already
-create their own dated subfolder before scanning, so this works automatically.
+The frequent scan (chapter 02) and the weekly scan (chapter 03) each create a
+dated subfolder before scanning, and remove it again at the end if nothing was
+moved into it. So every folder here holds at least one file.
+
+> **Tidying up an older setup:** before that `rmdir` was added, every run left
+> an empty folder behind (hundreds of them). Remove them once, while no scan
+> is running:
+> `find /opt/homebrew/var/quarantine -mindepth 1 -type d -empty -delete`
 
 > The first time a scan runs it creates `/opt/homebrew/var/quarantine/`
 > itself. If you want to create it by hand, this does the same thing:
@@ -47,8 +52,20 @@ create their own dated subfolder before scanning, so this works automatically.
 List everything:
 
 ```bash
-find /opt/homebrew/var/quarantine -type f -print
+av-list-quarantine
 ```
+
+Example output:
+
+```
+2026-10-23 12:19   5983724  20261025-030632/Finances.001
+(plus 4 leftover lock file(s) from interrupted scans)
+Original locations: grep FOUND /opt/homebrew/var/log/clamav/*-scan.log
+```
+
+The folder name is when the file was quarantined. The date in the first
+column is the file's own last-modified time. (Without the shell helpers:
+`find /opt/homebrew/var/quarantine -type f -print`.)
 
 For details (size, when, where it came from) check the scan log — each `FOUND`
 line shows the virus name and the file's **original** location:
@@ -69,8 +86,8 @@ to restore it.
 
 ## Stray `.clamav-quarantine-lock.*` files
 
-If the listing above shows files named like `.clamav-quarantine-lock.21095.0`
-(the helper script below lists them too), don't worry — those aren't infected
+If `find` shows files named like `.clamav-quarantine-lock.21095.0`
+(`av-list-quarantine` only counts them), don't worry — those aren't infected
 files. When `clamscan --move` moves an infected file into a dated folder, it
 first creates one of these zero-byte lock files as a mutex, so two scans
 moving files with the same basename into the same folder can't clobber each
@@ -140,54 +157,19 @@ When you're sure you don't want it, remove the dated folder (or a single file):
 # Delete one dated run:
 sudo rm -rf /opt/homebrew/var/quarantine/20260817-030000
 
-# Or empty the whole quarantine:
-sudo rm -rf /opt/homebrew/var/quarantine/*
+# Or empty the whole quarantine (lists it and asks first):
+av-clear-quarantine
 ```
 
 This is permanent — there's no Trash for quarantine — so only do it after
 reviewing the contents.
 
-## Optional: a small helper script
+## Shell helpers
 
-To save typing, a helper script can list and empty the quarantine:
-
-```bash
-nano /opt/homebrew/etc/clamav/scripts/quarantine.sh
-```
-
-```bash
-#!/bin/bash
-# Manage the ClamAV quarantine folder.
-# Usage:  quarantine.sh list | purge
-
-QUARANTINE=/opt/homebrew/var/quarantine
-
-case "${1:-list}" in
-  list)
-    echo "Files in $QUARANTINE:"
-    find "$QUARANTINE" -type f -print 2>/dev/null | sed "s|$QUARANTINE/||" || echo "  (empty)"
-    ;;
-  purge)
-    echo "Emptying $QUARANTINE ..."
-    sudo rm -rf "$QUARANTINE"/* && echo "done."
-    ;;
-  *)
-    echo "Usage: $0 {list|purge}"
-    exit 1
-    ;;
-esac
-```
-
-```bash
-chmod +x /opt/homebrew/etc/clamav/scripts/quarantine.sh
-```
-
-Then:
-
-```bash
-/opt/homebrew/etc/clamav/scripts/quarantine.sh list
-/opt/homebrew/etc/clamav/scripts/quarantine.sh purge   # asks nothing, be sure!
-```
+`av-list-quarantine` and `av-clear-quarantine` are part of the shell helpers
+in [05-logs.md](05-logs.md#shell-helpers). `av-clear-quarantine` won't run
+while a scan is in progress, so it can't delete a lock file a scan still
+needs.
 
 ## References
 

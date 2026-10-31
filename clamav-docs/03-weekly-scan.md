@@ -109,9 +109,13 @@ notify "Weekly scan started${MANUAL:+ (manual)}."
 # mains power, so a scan paused on battery doesn't drain it.
 # /System/Volumes/Data holds the same files as /Users, /opt, /private etc.
 # (firmlinks), so excluding it stops everything being scanned twice.
+# --phishing-scan-urls=no turns off the link-spoofing heuristic, which flags
+# cached mail (e.g. Thunderbird folders) that the mail client just downloads
+# again. Attachments are still checked against virus signatures.
 /usr/bin/caffeinate -s /opt/homebrew/bin/clamscan \
   --recursive \
   --infected \
+  --phishing-scan-urls=no \
   --log="$RUNLOG" \
   --move="$QUARANTINE" \
   --exclude-dir=^/dev \
@@ -167,6 +171,7 @@ if [ "$EXIT_CODE" -eq 1 ]; then
 fi
 
 rm -f "$RUNLOG"
+rmdir "$QUARANTINE" 2>/dev/null  # only removes it if nothing was quarantined
 ```
 
 > **About the exit codes:** `clamscan` returns `0` when nothing was found, `1`
@@ -204,6 +209,20 @@ rm -f "$RUNLOG"
 > and network shares (SMB/NFS) — so a slow or unreachable network share can't
 > stall the overnight scan for hours. Everything else on the internal disk is
 > scanned.
+
+> **About `--phishing-scan-urls=no`:** ClamAV's link-spoofing heuristic
+> (`Heuristics.Phishing.Email.SpoofedDomain`) is meant for mail servers
+> checking incoming mail. On a desktop it flags folder files in your mail
+> client's cache, such as Thunderbird's `ImapMail/.../Finances`. Moving one of
+> those breaks the folder, the client downloads it again, and the next scan
+> flags it again. A phishing email in a cache isn't a threat to the disk, and
+> attachments are still checked against virus signatures, so this heuristic is
+> turned off. If an attachment is ever flagged, delete that email on the mail
+> server so it isn't downloaded again.
+
+> **No empty quarantine folders:** each run creates a dated quarantine folder
+> before scanning (`clamscan --move` needs it to exist), and `rmdir` removes
+> it at the end if nothing was moved into it.
 
 Save and exit, then make it executable:
 

@@ -69,15 +69,23 @@ RUNLOG=/tmp/clamav-frequent-$STAMP.log
 
 mkdir -p "$QUARANTINE"
 
+echo "===== $(date) ====="
+echo "Starting clamscan..."
+echo
+
+  # --quiet \
 /opt/homebrew/bin/clamscan \
   --recursive \
   --infected \
-  --quiet \
   --log="$RUNLOG" \
   --move="$QUARANTINE" \
   "$HOME/Downloads" \
   "$HOME/Desktop" \
-  "$HOME/Documents"
+  "$HOME/Documents" \
+  "$HOME/qbt"
+
+echo "Scan complete."
+echo
 
 # Append this run's results to the permanent log with a date marker.
 {
@@ -92,7 +100,12 @@ if grep -q "FOUND" "$RUNLOG"; then
 fi
 
 rm -f "$RUNLOG"
+rmdir "$QUARANTINE" 2>/dev/null  # only removes it if nothing was quarantined
 ```
+
+The `rmdir` at the end removes this run's quarantine folder if nothing was
+moved into it, so `/opt/homebrew/var/quarantine/` only holds folders with
+something in them.
 
 Save and exit, then make it executable:
 

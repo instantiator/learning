@@ -21,8 +21,9 @@ Around those four layers sit three support pieces:
   the weekly scan starts and completes, and a "watchdog" alert if the weekly
   scan hasn't run.
 - **Shell helpers** — `av-status` (a one-screen summary of recent scans,
-  detections, updates and upcoming runs), `av-run-status`, `av-run-weekly` and
-  `av-run-frequent` (see [05-logs.md](05-logs.md#shell-helpers)).
+  detections, updates and upcoming runs), `av-run-status`, `av-run-weekly`,
+  `av-run-frequent`, `av-list-quarantine` and `av-clear-quarantine` (see
+  [05-logs.md](05-logs.md#shell-helpers)).
 
 > **One important limitation:** ClamAV's real-time "on-access" scanner is a
 > Linux-only feature and is not available on macOS. The closest practical
