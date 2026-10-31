@@ -4,6 +4,7 @@ This chapter wires up the two alerts you asked for:
 
 1. **A notification when something is found** — triggered either instantly by
    the clamd daemon, or at the end of the frequent and weekly scans.
+   The weekly scan also tells you when it **starts** and **completes**.
 2. **A "watchdog" notification when the weekly scan didn't run** — checked
    daily, so a missed Sunday scan doesn't silently slip by.
 
@@ -25,7 +26,11 @@ one-line trick:
 Two scripts in earlier chapters already include this:
 
 - `frequent-scan.sh` (chapter 02) notifies when its scan finds something.
-- `weekly-scan.sh` (chapter 03) notifies when its scan finds something.
+- `weekly-scan.sh` (chapter 03) notifies when it starts, when it pauses for
+  battery and resumes, when it completes
+  (with the infected count and exit code), and when its scan finds something.
+  It runs as root, so it posts through `launchctl asuser` to reach your
+  desktop (see chapter 03).
 
 This chapter adds the remaining two: an instant daemon alert (`virus-event.sh`)
 and the watchdog (`watchdog.sh`).
@@ -83,8 +88,8 @@ sudo /opt/homebrew/bin/brew services restart clamav
 
 ## Part B — Watchdog: alert when the weekly scan didn't run
 
-The weekly scan is scheduled for Sunday 3am, but if the Mac is asleep it may
-not run (see chapter 03). The watchdog's job is to notice and tell you.
+The weekly scan is scheduled for Sunday 3am, but if the Mac is asleep or stays
+on battery it may not run (see chapter 03). The watchdog's job is to notice and tell you.
 
 **How it works:** the weekly scan writes
 `/opt/homebrew/var/log/clamav/last-scan-summary.txt` (chapter 03). The watchdog
@@ -183,7 +188,7 @@ will stay silent — that's the correct "all good" behaviour.
 
 > **Getting the "did not run" summary:** the notification only says it didn't
 > run; it doesn't tell you why. To diagnose, read the logs
-> ([05-logs.md](05-logs.md)) and check launchd's own record:
+> ([05-logs.md](05-logs.md)), run `av-status`, and check launchd's own record:
 > `sudo launchctl print system/com.clamav.weekly-scan`.
 
 ## Notification permissions
@@ -202,6 +207,9 @@ send notifications, the first time an alert fires. If alerts don't appear:
 |---|---|---|
 | "Virus found" | Instantly, when clamd detects something | `virus-event.sh` (VirusEvent) |
 | "X infected file(s) found" | End of each 30-min scan | `frequent-scan.sh` |
+| "Weekly scan started." | Start of each weekly scan (" (manual)" if run by hand) | `weekly-scan.sh` |
+| "Weekly scan paused…" / "resumed." | Unplugged / plugged in during a scheduled scan | `weekly-scan.sh` |
+| "Weekly scan completed: …" | End of each weekly scan | `weekly-scan.sh` |
 | "X infected file(s) found" | End of each weekly scan | `weekly-scan.sh` |
 | "Weekly scan has not run..." | Every 6h, if summary is stale | `watchdog.sh` |
 

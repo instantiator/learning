@@ -171,11 +171,89 @@ sudo chown _clamav:_clamav /opt/homebrew/var/run/clamav
   correctly reloaded" in `/opt/homebrew/var/log/clamd.log`. If it's missing,
   restart both services.
 
+### "Malformed database" / scans report `Known viruses: 0`
+
+ClamAV can't verify its signature files ("Incorrect digital signature").
+Scans still "succeed" but check nothing, and clamd won't start. Run
+`clamscan /etc/hosts` to confirm.
+
+**First, check whether *every* database fails**, including `main.cvd`, which
+rarely changes. If it does, the files are fine and ClamAV itself is broken.
+This happened on 2026-10-31, when Homebrew upgraded `openssl@4` to 4.1.0 and
+the ClamAV build linked against it rejected all databases (see
+[Homebrew/homebrew-core#322048](https://github.com/Homebrew/homebrew-core/issues/322048)
+and
+[Cisco-Talos/clamav#1873](https://github.com/Cisco-Talos/clamav/pull/1873)).
+Re-downloading won't help. Check `ls -lT /opt/homebrew/Cellar/openssl@*` for a
+recent upgrade.
+
+If an older ClamAV keg built against a working OpenSSL is still in
+`/opt/homebrew/Cellar/clamav/`, you can switch back to it. Check it first:
+`otool -L /opt/homebrew/Cellar/clamav/<old>/lib/libclamav.12.dylib | grep ssl`
+should show the working OpenSSL, and
+`/opt/homebrew/Cellar/clamav/<old>/bin/clamscan /etc/hosts` should show
+`Known viruses` above 0 with no errors. Only do this if it's the **same ClamAV
+release** and its OpenSSL is still supported, so you aren't swapping one
+problem for a known vulnerability. Then:
+
+```bash
+cp -a /opt/homebrew/Cellar/clamav/<old> ~/clamav-<old>-backup   # it can't be re-downloaded
+brew uninstall clamav            # removes only the newest keg (--force would remove all)
+sudo rm -rf /opt/homebrew/Cellar/clamav/<broken>   # if uninstall says it couldn't (root-owned files)
+brew link clamav                 # links the remaining, working keg
+brew pin clamav                  # stops `brew upgrade` reinstalling the broken build
+sudo launchctl kickstart -k system/com.clamav.freshclam
+sudo brew services restart clamav
+```
+
+> If `brew services` then says "Formula `clamav` is not installed", the old
+> keg has no `INSTALL_RECEIPT.json`, so Homebrew doesn't recognise it.
+> `brew uninstall` also removed the clamd service plist. Install the keg's own
+> plist by hand instead:
+>
+> ```bash
+> sudo cp /opt/homebrew/opt/clamav/homebrew.mxcl.clamav.plist /Library/LaunchDaemons/
+> sudo chown root:wheel /Library/LaunchDaemons/homebrew.mxcl.clamav.plist
+> sudo launchctl bootstrap system /Library/LaunchDaemons/homebrew.mxcl.clamav.plist
+> ```
+>
+> The 2026-10-31 instance of this is tracked in
+> [TODO-return-to-latest.md](TODO-return-to-latest.md).
+
+When a fixed version is released, undo the pin:
+`brew unpin clamav && brew upgrade clamav`, then restart both services as
+above.
+
+**If only one file fails**, it's a corrupt download. Delete the bad file and
+let the freshclam daemon download it again:
+
+```bash
+sudo rm /opt/homebrew/var/lib/clamav/daily.cld
+sudo launchctl kickstart -k system/com.clamav.freshclam   # restarts it; it updates on start
+# wait a minute, then:
+ls /opt/homebrew/var/lib/clamav/                          # daily.cvd/.cld is back
+sudo brew services restart clamav
+```
+
+> Don't run `sudo freshclam` by hand while the daemon is running. It fails
+> with "Failed to lock the log file … Resource temporarily unavailable",
+> because the daemon holds the lock on `freshclam.log`.
+
 ### The weekly scan never runs on Sunday
 
 - launchd jobs don't fire while the Mac is asleep (see chapter 03). The
   watchdog (chapter 06) will tell you about it, and the scan typically runs
   when the Mac next wakes.
+- Scheduled scans only run on mains power. `av-status` shows "due now, starts
+  when the Mac is on mains power" if one is waiting. Plug in, or run it now
+  with `av-run-weekly`.
+- Check the Sunday wake is scheduled: `pmset -g sched`. If it isn't, see
+  chapter 03, step 3.
+- Run `av-status`. A "started" line with no "finished" after it means a scan
+  was interrupted, usually by a restart or by the Mac sleeping with the lid
+  closed.
+- To run it yourself now: `av-run-weekly` (or
+  `sudo launchctl kickstart system/com.clamav.weekly-scan`).
 - Check the job is registered: `sudo launchctl print system/com.clamav.weekly-scan`
 - Check the script is executable: `ls -l /opt/homebrew/etc/clamav/scripts/weekly-scan.sh`
 
@@ -183,6 +261,9 @@ sudo chown _clamav:_clamav /opt/homebrew/var/run/clamav
 
 - Confirm the alert scripts are executable and end with the `osascript`
   line as written in chapters 02/03/06.
+- Root's notifications don't reach your desktop. That's why `weekly-scan.sh`
+  posts through `launchctl asuser`. If you write another root script, do the
+  same.
 - Check **System Settings → Notifications** for the app that ran the scripts
   (Terminal/iTerm, or whatever launchd used).
 - `virus-event.sh` runs as the `_clamav` system user, which Notification Center

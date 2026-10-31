@@ -10,15 +10,19 @@ The setup is split into four layers that work together:
 | **clamd daemon** | The always-running scanner that other tools talk to. | Always (starts at boot) | root, drops to `_clamav` |
 | **Signature updates** | Keeps the virus database up to date. | Every 2 hours | root, drops to `_clamav` |
 | **Frequent scans** | Quick scans of the places you download and open files. | Every 30 minutes | your user account |
-| **Weekly deep scan** | A slow, thorough scan of your whole disk. | Every Sunday at 3:00 | root |
+| **Weekly deep scan** | A slow, thorough scan of your whole disk. | Every Sunday at 3:00, on mains power (otherwise when next plugged in) | root |
 
 Around those four layers sit three support pieces:
 
 - **Quarantine** — anything found is moved to a folder for you to review, rather
   than deleted (false positives happen).
 - **Logs** — every component writes its own log so you can see what happened.
-- **Notifications** — macOS notification alerts when something is found, and a
-  "watchdog" alert if the weekly scan hasn't run.
+- **Notifications** — macOS notification alerts when something is found, when
+  the weekly scan starts and completes, and a "watchdog" alert if the weekly
+  scan hasn't run.
+- **Shell helpers** — `av-status` (a one-screen summary of recent scans,
+  detections, updates and upcoming runs), `av-run-status`, `av-run-weekly` and
+  `av-run-frequent` (see [05-logs.md](05-logs.md#shell-helpers)).
 
 > **One important limitation:** ClamAV's real-time "on-access" scanner is a
 > Linux-only feature and is not available on macOS. The closest practical
@@ -61,7 +65,8 @@ sequence:
   (especially downloaded installers). That's why everything is moved to a
   quarantine folder instead of being deleted. Always review before deleting.
 - **Full-disk scans take hours.** The weekly scan is scheduled for 3am on
-  Sunday so it runs while you're asleep.
+  Sunday so it runs while you're asleep. A scheduled wake at 02:55 and
+  `caffeinate` keep the Mac awake for it. Leave it plugged in with the lid open.
 - **This guide only documents; it does not run anything.** Every command here
   is for you to run. Most require `sudo`, and a few of the configuration
   options in these docs reflect decisions you can change later.
@@ -78,6 +83,7 @@ Following this guide creates these files:
     frequent-scan.sh                         (every-30-min scans)
     weekly-scan.sh                           (Sunday deep scan + summary)
     watchdog.sh                              (alert if weekly scan is missing)
+    status.py                                (av-status summary)
 /opt/homebrew/var/lib/clamav/                (virus signature database)
 /opt/homebrew/var/quarantine/                (infected files land here)
 /opt/homebrew/var/log/
@@ -91,9 +97,12 @@ Following this guide creates these files:
     com.user.clamav-frequent-scan.plist      (frequent scans)
     com.user.clamav-scan-watchdog.plist      (weekly-scan watchdog)
 /Library/LaunchDaemons/
-    homebrew.mxcl.clamav.plist               (created by brew services - clamd)
+    sh.brew.clamav.plist                     (created by brew services - clamd;
+                                              older Homebrew: homebrew.mxcl.clamav.plist)
     com.clamav.freshclam.plist               (updates)
     com.clamav.weekly-scan.plist             (weekly scan)
+~/.oh-my-zsh/custom/clamav.zsh               (av-* shell helpers)
+pmset repeating wake                         (Sunday 02:55, `pmset -g sched`)
 ```
 
 ## References

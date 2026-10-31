@@ -169,7 +169,7 @@ as root — which is why it needs `sudo`.
 sudo /opt/homebrew/bin/brew services start clamav
 ```
 
-This installs a launchd job at `/Library/LaunchDaemons/homebrew.mxcl.clamav.plist`
+This installs a launchd job at `/Library/LaunchDaemons/sh.brew.clamav.plist` (`homebrew.mxcl.clamav.plist` on older Homebrew)
 that:
 
 - starts `clamd` now,
