@@ -11,6 +11,7 @@
 
 ## Technologies - learning notes
 
+- [claude certified developer](claude-certified-dev/) - Claude Certified Developer study notes
 - [axon](axon/) - Axon Frameworks 4, 5
 - [js](js/) - javascript topics
 - [sql](sql/) - sql notes
