@@ -1,0 +1,140 @@
+# Offline study notes: Claude Certified Developer - Foundations
+
+Source: https://anthropic-partners.skilljar.com/path/claude-certified-developer-foundations
+Format: reduced study notes (own words), one directory per section, numbered files.
+
+## Sections
+- [x] 01 MSO Foundations (57 min)
+  - [x] 01.01 Orientation
+  - [x] 01.02 How LLMs Behave
+  - [x] 01.03 Models & Reasoning
+  - [x] 01.04 Prompting Modes
+  - [x] 01.05 Technical Substrate (SDK vs REST, streaming, async)
+  - [x] 01.06 Module Quiz
+  - [x] 01.07 Exercise
+  - [x] 01.08 Recap
+  - [x] 01.09 Module Complete
+- [x] 02 Production-Grade Prompting, Agents & Tool Use (209 min, 29 screens) - done, with the gaps noted below
+  - [x] 02.01 Orientation
+  - [x] 02.02 Prompting Craft: Teaching (gap: Few-shot and Output Constraints tab panels did not load)
+  - [x] 02.03 Prompting Craft: Watch Out (loaded on retry)
+  - [x] 02.04 Prompting Craft: Checkpoint 1
+  - [x] 02.05 Extended Thinking: Teaching
+  - [x] 02.06 Extended Thinking: Checkpoint 2
+  - [x] 02.07 Tool Schemas: Teaching
+  - [x] 02.08 Tool Schemas: Watch Out
+  - [x] 02.09 Tool Schemas: Checkpoint 3
+  - [x] 02.10 Streaming: Teaching
+  - [x] 02.11 Streaming: Watch Out
+  - [x] 02.12 Streaming: Checkpoint 4
+  - [x] 02.13 Context Engineering: Teaching
+  - [x] 02.14 Context Engineering: Watch Out
+  - [x] 02.15 Context Engineering: Checkpoint 5
+  - [x] 02.16 Agent Construction: Teaching
+  - [x] 02.17 Agent Construction: Watch Out
+  - [x] 02.18 Agent Construction: Checkpoint 6
+  - [x] 02.19 Agent Memory: Teaching
+  - [x] 02.20 Agent Memory: Watch Out
+  - [x] 02.21 Agent Memory: Checkpoint 7
+  - [x] 02.22 Debug Task: Identify
+  - [x] 02.23 Debug Task: Fix
+  - [x] 02.24 Multimodal & Batch: Teaching
+  - [x] 02.25 Multimodal & Batch: Watch Out
+  - [x] 02.26 Multimodal & Batch: Checkpoint 8
+  - [x] 02.27 Recap
+  - [x] 02.28 Glossary
+  - [x] 02.29 Module Complete
+- [x] 03 Claude Code, MCP & Integration (142 min, 22 screens) - done, with the gaps noted below
+  - [x] 03.01 Module Introduction
+  - [x] 03.02 Permission Modes: Teaching
+  - [x] 03.03 Permission Modes: Watch Out
+  - [x] 03.04 Permission Modes: Checkpoint
+  - [x] 03.05 Durable Project Context: Teaching
+  - [x] 03.06 Durable Project Context: Watch Out
+  - [x] 03.07 Durable Project Context: Checkpoint
+  - [x] 03.08 Packaging Workflows: Teaching
+  - [x] 03.09 Packaging Workflows: Checkpoint (first)
+  - [x] 03.10 Packaging Workflows: Watch Out
+  - [x] 03.11 Packaging Workflows: Checkpoint (second)
+  - [x] 03.12 MCP Servers: Teaching
+  - [x] 03.13 MCP Servers: Watch Out
+  - [x] 03.14 MCP Servers: Checkpoint
+  - [x] 03.15 Enterprise Integration: Teaching
+  - [x] 03.16 Enterprise Integration: Watch Out
+  - [x] 03.17 Enterprise Integration: Checkpoint
+  - [x] 03.18 Integration Task: Bug ID
+  - [x] 03.19 Integration Task: Assembly
+  - [x] 03.20 Recap
+  - [x] 03.21 Glossary
+  - [x] 03.22 Module Complete
+- [x] 04 Production Engineering, Evals & Security (211 min, 23 screens)
+  - [x] 04.01 Module Introduction
+  - [x] 04.02 Evals & Judges: Teaching
+  - [x] 04.03 Evals & Judges: Watch Out
+  - [x] 04.04 Evals & Judges: Checkpoint
+  - [x] 04.05 Testing & Tracing: Teaching
+  - [x] 04.06 Testing & Tracing: Watch Out
+  - [x] 04.07 Testing & Tracing: Checkpoint
+  - [x] 04.08 Failure Handling: Teaching
+  - [x] 04.09 Failure Handling: Watch Out
+  - [x] 04.10 Failure Handling: Checkpoint
+  - [x] 04.11 Model Selection
+  - [x] 04.12 Model Selection: Checkpoint
+  - [x] 04.13 Cost & Orchestration: Teaching
+  - [x] 04.14 Cost & Orchestration: Watch Out
+  - [x] 04.15 Cost & Orchestration: Checkpoint
+  - [x] 04.16 Security: Teaching
+  - [x] 04.17 Security: Watch Out
+  - [x] 04.18 Security: Checkpoint
+  - [x] 04.19 Cumulative Task: Find the Defects
+  - [x] 04.20 Cumulative Task: Write the Fix
+  - [x] 04.21 Recap
+  - [x] 04.22 Glossary
+  - [x] 04.23 Module Complete
+- [x] 05 Accelerators & IP Contribution (139 min, 25 screens)
+  - [x] 05.01 Orientation
+  - [x] 05.02 Packaging for Reuse: Teaching
+  - [x] 05.03 Packaging for Reuse: Watch Out
+  - [x] 05.04 Packaging for Reuse: Checkpoint
+  - [x] 05.05 Contributing Back: Teaching
+  - [x] 05.06 Contributing Back: Watch Out
+  - [x] 05.07 Contributing Back: Checkpoint
+  - [x] 05.08 Requirements & Lifecycle: Teaching 1
+  - [x] 05.09 Requirements & Lifecycle: Checkpoint 1
+  - [x] 05.10 Requirements & Lifecycle: Teaching 2
+  - [x] 05.11 Requirements & Lifecycle: Checkpoint 2
+  - [x] 05.12 Deployment & Versioning: Teaching
+  - [x] 05.13 Deployment & Versioning: Watch Out
+  - [x] 05.14 Deployment & Versioning: Checkpoint
+  - [x] 05.15 Comparing Platforms: Teaching
+  - [x] 05.16 Comparing Platforms: Watch Out
+  - [x] 05.17 Comparing Platforms: Checkpoint
+  - [x] 05.18 Trust Boundaries: Teaching
+  - [x] 05.19 Trust Boundaries: Watch Out
+  - [x] 05.20 Trust Boundaries: Checkpoint
+  - [x] 05.21 Cumulative Task: Diagnose
+  - [x] 05.22 Cumulative Task: Assemble
+  - [x] 05.23 Recap
+  - [x] 05.24 Glossary
+  - [x] 05.25 Module Complete
+
+## Status / blockers
+- Section 1 done (9 files). Quiz and exercise were read but not submitted.
+- The course player is a SCORM iframe. The bridge can't see inside it on the Skilljar page, but works on the frame opened as its own tab (Firefox: right-click in the course > This Frame > Open Frame in New Tab). Section 1 frame URL: https://anthropic-partners.skilljar.com/content/wp/4hdejjwplbrm/24i2zleerqupu/Developer_M1_vF2.html
+- Frame URLs: M2 .../content/wp/4hdejjwplbrm/3fpv056zo4wp4/Developer_M2_vF2.html, M3 .../168108zug1cy3/Developer_M3_vF2.html, M4 .../2gf8jaub9q0dj/Developer_M4_vF2.html, M5 .../3rtcsmg1kllky/Developer_M5_vF2.html (all under https://anthropic-partners.skilljar.com/content/wp/4hdejjwplbrm/).
+- The bridge can only be attached to one tab at a time, so switch the active tab to the module being worked on.
+- Unit lists for 3-5 get filled in when each module is opened.
+- Tip: after clicking a tab/screen, wait ~1s before snapshotting; the panel text renders late and refs shift.
+- Module 2 done: 29 files. Checkpoints, quizzes and debug task were read but not attempted or submitted, so the course's model answers for the write-your-answer items (02.04, 02.12, 02.18, 02.22, 02.23) are not captured; those notes include my own reading marked as such.
+- Module 2 gaps (panels that did not load in the reader): 02.02 Few-shot Examples and Output Constraints tabs; 02.07 loop-diagram steps 2 to 6; 02.16 Agent SDK tab and part of the FedRAMP row.
+- Next: Module 3. The bridge attaches to one tab at a time, so switch the active tab to the Module 3 player URL first.
+- Module 3 done: 22 files. As in Module 2, exercises and checkpoints were read but not attempted. Write-your-answer items (03.18, 03.19) don't reveal the course's model answer, so those notes carry my own reading, labelled as mine.
+- Module 3 gaps (panels that did not load): 03.08 Messages API, Agent SDK and Managed Agents skill-runtime tabs; 03.12 HTTP and SSE transport tabs; 03.15 service-identity and local-filesystem authentication tabs. The Module 3 recap mentions AI code review, which has no dedicated screen in the sequence.
+- Rendering tip: the player draws lessons only while its tab is the visible one in Firefox; if screens come back blank, bring the tab to the front.
+- Next: Module 4 (switch the bridge to the Module 4 player tab).
+- Module 4 done: 23 files. Exercises and checkpoints were read but not attempted, so model answers for the write-your-answer items (04.18, 04.19, 04.20) are not captured; those notes carry my own reading, labelled as mine. 04.19's third defect is my inference.
+- Module 4 gaps (panels that did not load): 04.13 Cost & Orchestration lever tabs (prompt/context size, number of tool calls, streamed vs batched).
+- Next: Module 5 (switch the bridge to the Module 5 player tab, keep it in the foreground).
+- Module 5 done: 25 files. Exercises and checkpoints were read but not attempted or submitted, so the course's answer keys for 05.04, 05.07, 05.09, 05.11, 05.14, 05.17, 05.20, 05.21 and 05.22 are not captured; those notes carry my own reading, labelled as mine.
+- Module 5 gaps: 05.02 (end of the eval-suite row truncated in the reader); 05.12 (third-party platform identity cell truncated).
+- ALL FIVE SECTIONS DONE: 9 + 29 + 22 + 23 + 25 = 108 files.
