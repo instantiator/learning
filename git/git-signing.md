@@ -48,3 +48,9 @@ git log --show-signature -1
 ```
 
 It should say "Good signature". Once pushed, the commit shows as Verified on GitHub. If you tick "Save in Keychain" at the first passphrase prompt, you won't be asked again.
+
+7. Fix permissions on `.gnupg`
+
+```bash
+chmod 700 ~/.gnupg
+```
